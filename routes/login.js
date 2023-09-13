@@ -26,8 +26,6 @@ router.post('/login/:url', async (req, res) => {
       headers: { Authorization: `Bearer ${AccessToken}` }
     });
 
-    console.log(result);
-
     const userEmail = url.includes('kakao') ? result.data.kakao_account.email : result.data.response.email;
     const userName = url.includes('kakao') ? result.data.kakao_account.name : result.data.response.name;
     const userID = url.includes('kakao') ? result.data.id : result.data.response.id;
@@ -40,6 +38,9 @@ router.post('/login/:url', async (req, res) => {
       expiresIn: '1d',
       issuer: 'ashow'
     });
+
+    console.log('userEmail', userEmail);
+    console.log('userName', userName);
 
     // 회원인지 파악하기
     db.query(`SELECT * FROM user WHERE userAccount = '${userEmail}' and userName = '${userName}';
@@ -87,7 +88,7 @@ router.post('/login/:url', async (req, res) => {
 });
 
 
-router.post('/verifytoken', (req,res)=>{
+router.post('/verifytoken', (req, res)=>{
   const token = req.body.verifyToken;
   const copy = jwt.decode(token);
   const userID = copy.USER_ID;
@@ -126,7 +127,7 @@ router.post('/verifytoken', (req,res)=>{
 
 
 // logister
-router.post('/logisterdo', function(req, res, next){
+router.post('/logisterdo', function(req, res){
   const { userAccount, userName, userNickName, userURL } = req.body;
   db.query(`
   INSERT IGNORE INTO user (userAccount, userName, userNickName, userURL) VALUES 
@@ -143,7 +144,7 @@ router.post('/logisterdo', function(req, res, next){
 });
 
 
-router.post('/deleteaccount', function(req, res, next){
+router.post('/deleteaccount', function(req, res){
   const { refreshToken, userName, userNickName } = req.body;
 
   // 토큰 검증
@@ -166,6 +167,20 @@ router.post('/deleteaccount', function(req, res, next){
   }})
 });
 
+
+
+router.post('/loginadmin', function(req, res){
+  const { username, password } = req.body;
+  
+  if (username === 'ashowadmin' && password === 'it14687&&') {
+    res.send(true);
+    res.end();
+  } else {
+    res.send(false);
+    res.end();
+  }
+
+});
 
 
 
