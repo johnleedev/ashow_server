@@ -172,7 +172,7 @@ router.post('/deleteaccount', function(req, res){
 router.post('/loginadmin', function(req, res){
   const { username, password } = req.body;
   
-  if (username === 'ashowadmin' && password === 'it14687&&') {
+  if (username === 'admin' && password === 'it14687&&') {
     res.send(true);
     res.end();
   } else {

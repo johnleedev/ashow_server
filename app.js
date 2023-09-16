@@ -24,7 +24,7 @@ app.use(compression());
 app.use(helmet());
 app.use(cors());
 
-app.listen(80, ()=>{
+app.listen(8000, ()=>{
   console.log('server is running')
 });
 
