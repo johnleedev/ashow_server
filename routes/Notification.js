@@ -15,7 +15,7 @@ admin.initializeApp({
 
 
 // 알림 보내기
-router.post('/allsend', async (req, res) => {
+router.post('/allsendnotifi', async (req, res) => {
   
   const { notifiTitle, notifiMessage } = req.body;
   const today = new Date();

@@ -39,9 +39,6 @@ router.post('/login/:url', async (req, res) => {
       issuer: 'ashow'
     });
 
-    console.log('userEmail', userEmail);
-    console.log('userName', userName);
-
     // 회원인지 파악하기
     db.query(`SELECT * FROM user WHERE userAccount = '${userEmail}' and userName = '${userName}';
     `, function(error, result){
@@ -88,6 +85,137 @@ router.post('/login/:url', async (req, res) => {
 });
 
 
+
+// 애플 로그인
+router.post('/loginsocial/apple', async (req, res) => {
+  
+  const { userInfo } = req.body;
+  const { AccessToken } = req.body;
+  const { userFullName } = req.body;
+
+  const userEmail = userInfo.email;
+  const userID = userInfo.c_hash;
+  const familyName = userFullName.familyName;
+  const givenName = userFullName.givenName;
+  
+  try {
+    const userName = `${familyName}${givenName}`;
+    const SECRET_KEY = secretKey.key;
+    const userURL = 'apple';
+    const date = new Date();
+
+    // refreshToken 만들기
+    const refreshToken = jwt.sign({ type: 'JWT', USER_ID: userID }, SECRET_KEY, {
+      expiresIn: '30d',
+      issuer: 'studentsclassic'
+    });
+
+    // 회원인지 파악하기
+    db.query(`SELECT * FROM user WHERE userAccount = '${userEmail}';
+    `, function(error, result){
+      if (error) {throw error}
+      if (result.length === 0) {  
+        db.query(
+          `INSERT IGNORE INTO accesstoken (userID, token, date) VALUES ('${userID}', '${AccessToken}', '${date}')`
+        );
+        const userData = {}
+        userData.email = userEmail;
+        userData.name = userName;
+        userData.userURL = userURL;
+        userData.refreshToken = refreshToken;
+        userData.isUser = false;
+        res.json(userData);
+        res.end();
+
+      } else {
+
+        var json = JSON.stringify(result[0]);
+        const userData = JSON.parse(json);
+        userData.refreshToken = refreshToken;
+        userData.isUser = true;
+
+        if ( userData.userURL === userURL ) {
+          res.json(userData);
+          res.end();
+        } else {
+          db.query(
+            `INSERT IGNORE INTO accesstoken (userID, token, date) VALUES ('${userID}', '${AccessToken}', '${date}')`
+          );
+          db.query(
+            `UPDATE user SET userURL = '${userURL}' WHERE userAccount = '${userData.userAccount}'`
+          );
+          userData.userURL = userURL
+          res.json(userData);
+          res.end();
+        }
+    }})
+  } catch (error) {
+    res.status(500).json({ error: '애플 로그인 에러' });
+  }
+});
+
+
+// 구글 로그인
+router.post('/loginsocial/google', async (req, res) => {
+
+  const { user } = req.body;
+  const { AccessToken } = req.body;
+
+  try {
+    const userEmail = user.email;
+    const userID = user.uid;
+    const userURL = 'google';
+    const SECRET_KEY = secretKey.key;
+    const date = new Date();
+
+    // refreshToken 만들기
+    const refreshToken = jwt.sign({ type: 'JWT', USER_ID: userID }, SECRET_KEY, {
+      expiresIn: '30d',
+      issuer: 'studentsclassic'
+    });
+
+    // 회원인지 파악하기
+    db.query(`SELECT * FROM user WHERE userAccount = '${userEmail}';
+    `, function(error, result){
+      if (error) {throw error}
+      if (result.length === 0) {  
+        db.query(
+          `INSERT IGNORE INTO accesstoken (userID, token, date) VALUES ('${userID}', '${AccessToken}', '${date}')`
+        );
+        const userData = {}
+        userData.email = userEmail;
+        userData.userURL = userURL;
+        userData.refreshToken = refreshToken;
+        userData.isUser = false;
+        res.json(userData);
+        res.end();
+      } else {
+        var json = JSON.stringify(result[0]);
+        const userData = JSON.parse(json);
+        userData.refreshToken = refreshToken;
+        userData.isUser = true;
+
+        if ( userData.userURL === userURL ) {
+          res.json(userData);
+          res.end();
+        } else {
+          db.query(
+            `INSERT IGNORE INTO accesstoken (userID, token, date) VALUES ('${userID}', '${AccessToken}', '${date}')`
+          );
+          db.query(
+            `UPDATE user SET userURL = '${userURL}' WHERE userAccount = '${userData.userAccount}'`
+          );
+          userData.userURL = userURL
+          res.json(userData);
+          res.end();
+        }
+    }})
+  } catch (error) {
+    res.status(500).json({ error: '구글 로그인 에러' });
+  }
+});
+
+// 토큰 검증
 router.post('/verifytoken', (req, res)=>{
   const token = req.body.verifyToken;
   const copy = jwt.decode(token);
@@ -135,7 +263,7 @@ router.post('/logisterdo', function(req, res){
   `,function(error, result){
   if (error) {throw error}
   if (result.affectedRows > 0) {  
-    res.send(userName);
+    res.send(userAccount);
     res.end();
   } else {
     res.send("");  
