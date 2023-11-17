@@ -19,5 +19,22 @@ router.get('/buildings', (req, res) => {
   });
 });
 
+router.get('/pyenginfo/:aptkey', (req, res) => {
+
+  const { aptkey } = req.params;
+  db.query(`
+    SELECT * from buildingspyenginfo where aptKey = '${aptkey}';
+  `, function(error, result, fields) {``
+    if (error) throw error;
+    if (result.length > 0) {
+      res.send(result);
+      res.end();
+    } else {              
+      res.send(error);
+      res.end();
+    }            
+  });
+});
+
 
 module.exports = router;
