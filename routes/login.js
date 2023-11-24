@@ -229,7 +229,7 @@ router.post('/logisterdo', function(req, res){
           checkPersonalInfo, checkContentsRestrict, checkInfoToOthers
         } = req.body;
 
-        db.query(`
+  db.query(`
   INSERT IGNORE INTO user (userAccount, userNickName, userURL, city, county, checkUpAge14, 
     checkUsingPolicy, checkPersonalInfo, checkContentsRestrict, checkInfoToOthers) VALUES 
   ('${userAccount}', '${userNickName}', '${userURL}', '${city}', '${county}', '${checkUpAge14}', '${checkUsingPolicy}', 
@@ -294,6 +294,7 @@ router.post('/nicknamecheck', function(req, res){
       res.end();
   }})
 });
+
 
 
 

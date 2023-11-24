@@ -13,9 +13,11 @@ var parseurl = require('parseurl');
 var loginRouter = require('./routes/login')
 var notificationRouter = require('./routes/Notification')
 var buildingsRouter = require('./routes/Buildings')
+var myPageRouter = require('./routes/Mypage')
 app.use('/login', loginRouter);
 app.use('/notification', notificationRouter);
 app.use('/buildings', buildingsRouter);
+app.use('/mypage', myPageRouter);
 
 app.use(express.static('build'));
 app.use(express.urlencoded({extended: true})) 
@@ -28,8 +30,6 @@ app.use(cors());
 app.listen(80, ()=>{
   console.log('server is running')
 });
-
-
 
 
 // 리액트 연결하기 ----------------------------------------------------------------- //

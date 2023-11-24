@@ -7,7 +7,7 @@ const { db } = require('../db');
 router.get('/buildings', (req, res) => {
   db.query(`
     SELECT * from buildings;
-  `, function(error, result, fields) {``
+  `, function(error, result, fields) {
     if (error) throw error;
     if (result.length > 0) {
       res.send(result);
@@ -24,7 +24,7 @@ router.get('/pyenginfo/:aptkey', (req, res) => {
   const { aptkey } = req.params;
   db.query(`
     SELECT * from buildingspyenginfo where aptKey = '${aptkey}';
-  `, function(error, result, fields) {``
+  `, function(error, result, fields) {
     if (error) throw error;
     if (result.length > 0) {
       res.send(result);
@@ -34,6 +34,25 @@ router.get('/pyenginfo/:aptkey', (req, res) => {
       res.end();
     }            
   });
+});
+
+router.get('/search/:word', (req, res) => {
+
+  const { word } = req.params;
+  db.query(`
+    SELECT * from buildings 
+    where name LIKE '%${word}%' OR addressCity LIKE '%${word}%' OR addressCounty LIKE '%${word}%';
+  `, function(error, result, fields) {
+    if (error) throw error;
+    if (result.length > 0) {
+      res.send(result);
+      res.end();
+    } else {              
+      res.send(error);
+      res.end();
+    }            
+  });
+
 });
 
 
